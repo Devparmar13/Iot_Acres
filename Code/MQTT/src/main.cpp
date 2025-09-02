@@ -41,8 +41,8 @@ void setup_wifi() {
 String getCurrentTime() {
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) return "N/A";
-  char buffer[10];
-  strftime(buffer, sizeof(buffer), "%I:%M %p", &timeinfo);
+  char buffer[9];
+  strftime(buffer, sizeof(buffer), "%H:%M:%S", &timeinfo);
   return String(buffer);
 }
 
@@ -68,6 +68,13 @@ void setup() {
 
   // NTP
   configTime(gmtOffset_sec, daylightOffset_sec, "pool.ntp.org");
+
+  Serial.print("Waiting for NTP time sync");
+  while (getCurrentTime() == "N/A") {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println("\nTime synced!");
 }
 
 void loop() {
@@ -89,5 +96,5 @@ void loop() {
   client.publish(mqtt_topic, payload.c_str());
   Serial.println("Published: " + payload);
 
-  delay(5000);
+  delay(10000);
 }
